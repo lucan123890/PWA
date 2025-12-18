@@ -30,3 +30,16 @@ input, button {
 .message .user {
   font-weight: bold;
 }
+
+/* Logo on Login Page */
+.logo-login {
+  width: 500px;       /* adjust size as needed */
+  margin-bottom: 300px;
+}
+
+/* Logo below Chat Messages */
+.logo-footer {
+  width: 300px;        /* smaller footer logo */
+  margin: 0px auto;
+  display: block;
+}

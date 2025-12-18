@@ -3,28 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure PWA Chat</title>
+  <title>BaDonker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!-- Login Page -->
-  <div id="login-page">
-    <h1>Login</h1>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button id="login-btn">Login</button>
-    <p id="login-error" style="color:red;"></p>
-  </div>
+<!-- Login Page -->
+<div id="login-page">
+  <img src="icons/logo.png" alt="App Logo" class="logo-login">
+  <h1>Login</h1>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="login-btn">Login</button>
+  <p id="login-error" style="color:red;"></p>
+</div>
 
-  <!-- Chat Page -->
-  <div id="chat-page" style="display:none;">
-    <h1>Main Group Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="message-input" placeholder="Type a message...">
-    <button id="send-btn">Send</button>
-    <button id="logout-btn">Logout</button>
-  </div>
+<!-- Chat Page -->
+<div id="chat-page" style="display:none;">
+  <img src="icons/logo.png" alt="App Logo" class="logo-footer">
+  <h1>Main Group Chat</h1>
+  <div id="messages"></div>
+  <input type="text" id="message-input" placeholder="Type a message...">
+  <button id="send-btn">Send</button>
+  <button id="logout-btn">Logout</button>
+</div>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
