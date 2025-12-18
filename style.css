@@ -1,0 +1,36 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 0px;
+  background-color: #BAE2F2;
+  margin: 0;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0px;
+}
+
+.logo {
+  width: 500px; /* Adjust as needed */
+  height: 300px;
+  margin-bottom: 0px;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 15px 30px;
+  font-size: 18px;
+  border: none;
+  border-radius: 12px;
+  background-color: #007aff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #005bb5;
+}
