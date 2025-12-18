@@ -2,44 +2,58 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   margin: 0;
-  padding: 20px;
-  background-color: hsl(200, 70%, 95%);
+  padding: 0;
 }
 
 input, button {
+  display: block;
+  width: 90%;
+  margin: 10px auto;
   padding: 10px;
-  margin: 10px;
-  font-size: 16px;
 }
 
-#messages {
-  border: 1px solid #ccc;
-  padding: 10px;
-  height: 300px;
+#pr-list {
+  height: 200px;
   width: 90%;
   margin: 10px auto;
   overflow-y: scroll;
-  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px;
   text-align: left;
 }
 
-.message {
-  margin: 5px 0;
+.user-pr-section {
+  border-bottom: 1px solid #ddd;
 }
 
-.message .user {
+.user-header {
+  background-color: #007aff;
+  color: white;
+  padding: 5px 10px;
   font-weight: bold;
+  position: sticky;
+  top: 0;
 }
 
-/* Logo on Login Page */
-.logo-login {
-  width: 500px;       /* adjust size as needed */
-  margin-bottom: 300px;
+.pr-item {
+  padding: 5px 15px;
+  border-top: 1px solid #eee;
 }
 
-/* Logo below Chat Messages */
-.logo-footer {
-  width: 300px;        /* smaller footer logo */
-  margin: 0px auto;
-  display: block;
+#lift-section, #pr-section {
+  background-color: #f2f2f2;
+  border-radius: 10px;
+  margin: 10px auto;
+  padding: 10px;
+  width: 90%;
+}
+
+#chat-box {
+  height: 300px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  margin: 10px auto;
+  padding: 10px;
+  width: 90%;
+  text-align: left;
 }

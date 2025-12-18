@@ -3,35 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BaDonker</title>
+  <title>Gym Chat App</title>
+
   <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-<!-- Login Page -->
-<div id="login-page">
-  <img src="icons/logo.png" alt="App Logo" class="logo-login">
-  <h1>Login</h1>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="login-btn">Login</button>
-  <p id="login-error" style="color:red;"></p>
-</div>
 
-<!-- Chat Page -->
-<div id="chat-page" style="display:none;">
-  <img src="icons/logo.png" alt="App Logo" class="logo-footer">
-  <h1>Main Group Chat</h1>
-  <div id="messages"></div>
-  <input type="text" id="message-input" placeholder="Type a message...">
-  <button id="send-btn">Send</button>
-  <button id="logout-btn">Logout</button>
-</div>
+  <!-- Login Page -->
+  <div id="login-page">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <button id="signup-btn">Sign Up</button>
+  </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <!-- Landing Page -->
+  <div id="landing-page" style="display:none;">
+    <h1>Welcome!</h1>
+    <button id="gym-btn">Gym Stats</button>
+    <button id="chat-btn">Group Chat</button>
+  </div>
+
+  <!-- Gym Stats Page -->
+  <div id="gym-page" style="display:none;">
+    <h1>Gym Stats</h1>
+    <div id="pr-list"></div>
+
+    <div id="lift-section">
+      <h2>Add Lift</h2>
+      <input type="text" id="lift-name" placeholder="Movement Name">
+      <input type="number" id="lift-weight" placeholder="Weight">
+      <input type="number" id="lift-reps" placeholder="Reps">
+      <input type="number" id="lift-sets" placeholder="Sets">
+      <button id="add-lift-btn">Add Lift</button>
+    </div>
+
+    <div id="pr-section">
+      <h2>Upload PR</h2>
+      <input type="text" id="pr-name" placeholder="Movement Name">
+      <input type="number" id="pr-weight" placeholder="Weight">
+      <input type="number" id="pr-reps" placeholder="Reps">
+      <button id="upload-pr-btn">Upload PR</button>
+    </div>
+
+    <button id="gym-back-btn">Back</button>
+  </div>
+
+  <!-- Group Chat Page -->
+  <div id="chat-page" style="display:none;">
+    <h1>Group Chat</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="chat-message" placeholder="Type a message">
+    <button id="send-msg-btn">Send</button>
+    <button id="chat-back-btn">Back</button>
+  </div>
 
   <script src="app.js"></script>
 </body>

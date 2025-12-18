@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "messages": {
+      ".read": "auth != null && (auth.token.email == 'lucarosenbergnealon@gmail.com' || auth.token.email == 'nealonriver@gmail.com' || auth.token.email == 'keith_nealon@yahoo.com' || auth.token.email == 'reginepedersen@yahoo.com')",
+      ".write": "auth != null && (auth.token.email == 'lucarosenbergnealon@gmail.com' || auth.token.email == 'nealonriver@gmail.com' || auth.token.email == 'keith_nealon@yahoo.com' || auth.token.email == 'reginepedersen@yahoo.com')"
+    }
+  }
+}
