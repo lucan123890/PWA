@@ -44,14 +44,6 @@
       <button id="add-lift-btn">Add Lift</button>
     </div>
 
-    <div id="pr-section">
-      <h2>Upload PR</h2>
-      <input type="text" id="pr-name" placeholder="Movement Name">
-      <input type="number" id="pr-weight" placeholder="Weight">
-      <input type="number" id="pr-reps" placeholder="Reps">
-      <button id="upload-pr-btn">Upload PR</button>
-    </div>
-
     <button id="gym-back-btn">Back</button>
   </div>
 
@@ -63,6 +55,23 @@
     <button id="send-msg-btn">Send</button>
     <button id="chat-back-btn">Back</button>
   </div>
+
+<!-- User Detail Page -->
+<div id="user-page" style="display:none;">
+  <h1 id="user-name-header"></h1>
+  
+  <div id="top-movements">
+    <h2>Top 5 Movements</h2>
+    <ul id="top-movements-list"></ul>
+  </div>
+
+  <div id="all-lifts">
+    <h2>All Lifts</h2>
+    <ul id="all-lifts-list"></ul>
+  </div>
+
+  <button id="user-back-btn">Back</button>
+</div>
 
   <script src="app.js"></script>
 </body>

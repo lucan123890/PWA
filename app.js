@@ -59,6 +59,13 @@ const prWeight = document.getElementById('pr-weight');
 const prReps = document.getElementById('pr-reps');
 const uploadPrBtn = document.getElementById('upload-pr-btn');
 
+// User Details
+const userPage = document.getElementById('user-page');
+const userNameHeader = document.getElementById('user-name-header');
+const topMovementsList = document.getElementById('top-movements-list');
+const allLiftsList = document.getElementById('all-lifts-list');
+const userBackBtn = document.getElementById('user-back-btn');
+
 // Chat
 const chatBox = document.getElementById('chat-box');
 const chatMessage = document.getElementById('chat-message');
@@ -82,6 +89,9 @@ loginBtn.addEventListener('click', () => {
     .then(cred => {
       username = cred.user.email;
       userId = safeUserId(username);
+      db.ref('users').on('value', snapshot => {
+        loadRecentPRs();
+      });
       loginPage.style.display = 'none';
       landingPage.style.display = 'block';
       loadRecentPRs();
@@ -114,12 +124,32 @@ chatBackBtn.addEventListener('click', () => {
 // ---------------- Gym Stats ----------------
 function loadRecentPRs() {
   prListDiv.innerHTML = '';
+
   db.ref('users').on('value', snapshot => {
     prListDiv.innerHTML = '';
+
     snapshot.forEach(userSnap => {
       const userData = userSnap.val();
-      const pr = userData.pr;
+      const liftsObj = userData.lifts || {};
+      const lifts = Object.values(liftsObj);
       const email = userData.user || userSnap.key;
+
+      let mostRecentPR = null;
+      const maxPerMovement = {}; // Tracks current PR per movement
+
+      // Sort lifts chronologically by timestamp
+      lifts.sort((a, b) => a.timestamp - b.timestamp);
+
+      for (const lift of lifts) {
+        const norm = normalizeMovement(lift.movement);
+
+        // If this lift beats previous PR for the movement
+        if (!maxPerMovement[norm] || lift.weight > maxPerMovement[norm].weight) {
+          maxPerMovement[norm] = lift;
+          // Update mostRecentPR to this lift
+          mostRecentPR = lift;
+        }
+      }
 
       const section = document.createElement('div');
       section.classList.add('user-pr-section');
@@ -127,17 +157,22 @@ function loadRecentPRs() {
       const header = document.createElement('div');
       header.classList.add('user-header');
       header.textContent = email === username ? `${email} (You)` : email;
+      header.addEventListener('click', () => openUserPage(userSnap.key, email));
       section.appendChild(header);
 
       const prDiv = document.createElement('div');
       prDiv.classList.add('pr-item');
-      prDiv.textContent = pr ? `${pr.movement} — ${pr.weight} kg x ${pr.reps} reps` : "No PR yet";
+      prDiv.textContent = mostRecentPR
+        ? `${mostRecentPR.movement} — ${mostRecentPR.weight} kg x ${mostRecentPR.reps} reps`
+        : "No lifts yet";
       section.appendChild(prDiv);
 
       prListDiv.appendChild(section);
     });
   });
 }
+
+
 
 addLiftBtn.addEventListener('click', () => {
   const movementRaw = liftName.value.trim();
@@ -165,25 +200,33 @@ addLiftBtn.addEventListener('click', () => {
   });
 });
 
+// Upload new lift
 uploadPrBtn.addEventListener('click', () => {
   const movementRaw = prName.value.trim();
-  if (!movementRaw || !prWeight.value || !prReps.value) return alert('Fill all PR fields!');
+  const weight = Number(prWeight.value);
+  const reps = Number(prReps.value);
 
-  const prData = {
+  if (!movementRaw || !weight || !reps) return alert('Fill all fields!');
+
+  const liftEntry = {
     movement: movementRaw,
-    weight: Number(prWeight.value),
-    reps: Number(prReps.value),
+    weight,
+    reps,
+    sets: 1, // default for PR entry
     timestamp: Date.now(),
     user: username
   };
 
-  db.ref(`users/${userId}/pr`).set(prData)
+  // Push new lift to lifts log
+  db.ref(`users/${userId}/lifts`).push(liftEntry)
     .then(() => {
+      console.log('Lift uploaded');
       prName.value = prWeight.value = prReps.value = '';
-      loadRecentPRs();
+      // No need to call loadRecentPRs manually if using real-time listener
     })
-    .catch(err => console.error("PR upload failed", err));
+    .catch(err => console.error('Lift upload failed', err));
 });
+
 
 // ---------------- Chat ----------------
 function loadChatMessages() {
@@ -209,4 +252,69 @@ sendMsgBtn.addEventListener('click', () => {
     timestamp: Date.now()
   });
   chatMessage.value = '';
+});
+
+function openUserPage(safeId, displayName) {
+  console.log('Opening user page for:', safeId, displayName);
+  console.log('DOM elements:', userPage, topMovementsList, allLiftsList);
+  // Hide other pages
+  gymPage.style.display = 'none';
+  landingPage.style.display = 'none';
+  chatPage.style.display = 'none';
+  userPage.style.display = 'block';
+
+  userNameHeader.textContent = displayName;
+
+  // Clear previous data
+  topMovementsList.innerHTML = '';
+  allLiftsList.innerHTML = '';
+
+  const liftsRef = db.ref(`users/${safeId}/lifts`);
+
+  liftsRef.once('value').then(snapshot => {
+    const lifts = [];
+
+    snapshot.forEach(child => {
+      lifts.push(child.val());
+    });
+
+    if (lifts.length === 0) return;
+
+    // --- Top 5 most popular movements by occurrence
+    const movementMap = {};
+
+    lifts.forEach(lift => {
+      const norm = normalizeMovement(lift.movement);
+      if (!movementMap[norm]) movementMap[norm] = [];
+      movementMap[norm].push(lift);
+    });
+
+    // Sort movements by number of times logged
+    const sortedMovements = Object.entries(movementMap)
+    
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 5); // top 5
+
+    sortedMovements.forEach(([_, liftArray]) => {
+      // Find the max weight lifted for this movement
+      const best = liftArray.reduce((max, curr) => curr.weight > max.weight ? curr : max, liftArray[0]);
+      const li = document.createElement('li');
+      li.textContent = `${best.movement}: ${best.weight} kg x ${best.reps} reps`;
+      topMovementsList.appendChild(li);
+    });
+
+    // --- Full lift log in reverse chronological order
+    lifts.sort((a, b) => b.timestamp - a.timestamp);
+
+    lifts.forEach(lift => {
+      const li = document.createElement('li');
+      li.textContent = `${lift.movement} — ${lift.weight} kg x ${lift.reps} reps`;
+      allLiftsList.appendChild(li);
+    });
+  });
+}
+
+userBackBtn.addEventListener('click', () => {
+  userPage.style.display = 'none';
+  gymPage.style.display = 'block';
 });

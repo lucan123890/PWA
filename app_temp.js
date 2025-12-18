@@ -1,4 +1,4 @@
-// -------- Firebase Setup -------------
+// ---------------- Firebase Config ----------------
 const firebaseConfig = {
   apiKey: "AIzaSyC-fWhhmVQ8ycZ7-JKe3JMkEaDpaHOohXY",
   authDomain: "pwa-site-6a264.firebaseapp.com",
@@ -10,45 +10,43 @@ const firebaseConfig = {
   measurementId: "G-EVWCLQM7L8"
 };
 
-
 firebase.initializeApp(firebaseConfig);
 
+const auth = firebase.auth();
 const db = firebase.database();
 
-console.log('Firebase initialized');
+// ---------------- Global Variables ----------------
+let username = '';
+let userId = '';
 
-document.getElementById('test-db').addEventListener('click', () => {
-  db.ref('HTML_FIX_TEST').set({
-    success: true,
-    time: Date.now()
-  }).then(() => {
-    console.log('WRITE SUCCESS');
-  }).catch(err => {
-    console.error('WRITE FAILED', err);
-  });
-});
+// ---------------- Helper Functions ----------------
+function safeUserId(email) {
+  return email.replace(/[.#$[\]]/g, '_');
+}
 
+function normalizeMovement(name) {
+  return name.replace(/\s+/g, '').toLowerCase();
+}
 
-// Elements
+// ---------------- DOM Elements ----------------
 const loginPage = document.getElementById('login-page');
 const landingPage = document.getElementById('landing-page');
-const chatPage = document.getElementById('chat-page');
 const gymPage = document.getElementById('gym-page');
-
-const loginBtn = document.getElementById('login-btn');
-const chatBtn = document.getElementById('chat-btn');
-const gymBtn = document.getElementById('gym-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const backBtn = document.getElementById('back-btn');
+const chatPage = document.getElementById('chat-page');
 
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
-const loginError = document.getElementById('login-error');
 
-const messagesDiv = document.getElementById('messages');
-const messageInput = document.getElementById('message-input');
-const sendBtn = document.getElementById('send-btn');
+const loginBtn = document.getElementById('login-btn');
+const signupBtn = document.getElementById('signup-btn');
 
+const gymBtn = document.getElementById('gym-btn');
+const chatBtn = document.getElementById('chat-btn');
+
+const gymBackBtn = document.getElementById('gym-back-btn');
+const chatBackBtn = document.getElementById('chat-back-btn');
+
+// Gym Stats
 const prListDiv = document.getElementById('pr-list');
 const liftName = document.getElementById('lift-name');
 const liftWeight = document.getElementById('lift-weight');
@@ -61,93 +59,69 @@ const prWeight = document.getElementById('pr-weight');
 const prReps = document.getElementById('pr-reps');
 const uploadPrBtn = document.getElementById('upload-pr-btn');
 
-let username = '';
-let userId = '';
+// User Details
+const userPage = document.getElementById('user-page');
+const userNameHeader = document.getElementById('user-name-header');
+const topMovementsList = document.getElementById('top-movements-list');
+const allLiftsList = document.getElementById('all-lifts-list');
+const userBackBtn = document.getElementById('user-back-btn');
 
+// Chat
+const chatBox = document.getElementById('chat-box');
+const chatMessage = document.getElementById('chat-message');
+const sendMsgBtn = document.getElementById('send-msg-btn');
 
-function safeUserId(email) {
-  return email.replace(/[.#$[\]]/g, '_');
-}
+// ---------------- Auth ----------------
+signupBtn.addEventListener('click', () => {
+  const email = emailInput.value;
+  const pass = passwordInput.value;
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(cred => {
+      alert('User created');
+    })
+    .catch(err => alert(err.message));
+});
 
-
-// -------- Authentication -------------
 loginBtn.addEventListener('click', () => {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
-  auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      username = userCredential.user.email;
+  const email = emailInput.value;
+  const pass = passwordInput.value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(cred => {
+      username = cred.user.email;
       userId = safeUserId(username);
+      db.ref('users').on('value', snapshot => {
+        loadRecentPRs();
+      });
       loginPage.style.display = 'none';
       landingPage.style.display = 'block';
+      loadRecentPRs();
+      loadChatMessages();
     })
-    .catch(error => {
-      loginError.textContent = error.message;
-    });
+    .catch(err => alert(err.message));
 });
 
-logoutBtn.addEventListener('click', () => {
-  auth.signOut().then(() => {
-    chatPage.style.display = 'none';
-    gymPage.style.display = 'none';
-    landingPage.style.display = 'none';
-    loginPage.style.display = 'block';
-    messagesDiv.innerHTML = '';
-  });
-});
-
-// -------- Navigation ---------
-chatBtn.addEventListener('click', () => {
-  landingPage.style.display = 'none';
-  chatPage.style.display = 'block';
-  listenForMessages();
-});
-
+// ---------------- Navigation ----------------
 gymBtn.addEventListener('click', () => {
   landingPage.style.display = 'none';
   gymPage.style.display = 'block';
-  loadRecentPRs();
 });
 
-backBtn.addEventListener('click', () => {
+chatBtn.addEventListener('click', () => {
+  landingPage.style.display = 'none';
+  chatPage.style.display = 'block';
+});
+
+gymBackBtn.addEventListener('click', () => {
   gymPage.style.display = 'none';
+  landingPage.style.display = 'block';
+});
+
+chatBackBtn.addEventListener('click', () => {
   chatPage.style.display = 'none';
   landingPage.style.display = 'block';
 });
 
-// -------- Chat Logic ---------
-sendBtn.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
-
-function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text) return;
-  const msg = { user: username, text, timestamp: Date.now() };
-  db.ref('messages').push(msg);
-  messageInput.value = '';
-}
-
-function listenForMessages() {
-  db.ref('messages').on('child_added', (snapshot) => {
-    const msg = snapshot.val();
-    const div = document.createElement('div');
-    div.classList.add('message');
-    div.innerHTML = `<span class="user">${msg.user}:</span> ${msg.text}`;
-    messagesDiv.appendChild(div);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  });
-}
-
-
-
-// Normalize movement names for consistent matching
-function normalizeMovement(name) {
-  return name.replace(/\s+/g, '').toLowerCase();
-}
-
-// Load PRs for all users
+// ---------------- Gym Stats ----------------
 function loadRecentPRs() {
   prListDiv.innerHTML = '';
 
@@ -155,37 +129,51 @@ function loadRecentPRs() {
     prListDiv.innerHTML = '';
 
     snapshot.forEach(userSnap => {
-      const data = userSnap.val();
-      const userEmail = data.user || 'Unknown';
-      const pr = data.pr;
+      const userData = userSnap.val();
+      const liftsObj = userData.lifts || {};
+      const lifts = Object.values(liftsObj);
+      const email = userData.user || userSnap.key;
+
+      let mostRecentPR = null;
+      const maxPerMovement = {}; // Tracks current PR per movement
+
+      // Sort lifts chronologically by timestamp
+      lifts.sort((a, b) => a.timestamp - b.timestamp);
+
+      for (const lift of lifts) {
+        const norm = normalizeMovement(lift.movement);
+
+        // If this lift beats previous PR for the movement
+        if (!maxPerMovement[norm] || lift.weight > maxPerMovement[norm].weight) {
+          maxPerMovement[norm] = lift;
+          // Update mostRecentPR to this lift
+          mostRecentPR = lift;
+        }
+      }
 
       const section = document.createElement('div');
       section.classList.add('user-pr-section');
 
       const header = document.createElement('div');
       header.classList.add('user-header');
-      header.textContent =
-        userEmail === username ? `${userEmail} (You)` : userEmail;
-
+      header.textContent = email === username ? `${email} (You)` : email;
+      header.addEventListener('click', () => openUserPage(userSnap.key, email));
       section.appendChild(header);
 
       const prDiv = document.createElement('div');
       prDiv.classList.add('pr-item');
-
-      if (pr) {
-        prDiv.textContent = `${pr.movement} — ${pr.weight} kg x ${pr.reps} reps`;
-      } else {
-        prDiv.textContent = 'No PR yet';
-      }
-
+      prDiv.textContent = mostRecentPR
+        ? `${mostRecentPR.movement} — ${mostRecentPR.weight} kg x ${mostRecentPR.reps} reps`
+        : "No lifts yet";
       section.appendChild(prDiv);
+
       prListDiv.appendChild(section);
     });
   });
 }
 
 
-// Add lift with case-insensitive matching and automatic new ID
+
 addLiftBtn.addEventListener('click', () => {
   const movementRaw = liftName.value.trim();
   if (!movementRaw || !liftWeight.value || !liftReps.value || !liftSets.value) return alert('Fill all lift fields!');
@@ -195,9 +183,7 @@ addLiftBtn.addEventListener('click', () => {
   liftsRef.once('value').then(snapshot => {
     let existingKey = null;
     snapshot.forEach(child => {
-      if (normalizeMovement(child.val().movement) === movementNorm) {
-        existingKey = child.key;
-      }
+      if (normalizeMovement(child.val().movement) === movementNorm) existingKey = child.key;
     });
 
     const liftData = {
@@ -207,33 +193,128 @@ addLiftBtn.addEventListener('click', () => {
       sets: Number(liftSets.value)
     };
 
-    if (existingKey) {
-      liftsRef.child(existingKey).set(liftData);
-    } else {
-      liftsRef.push(liftData);
-    }
+    if (existingKey) liftsRef.child(existingKey).set(liftData);
+    else liftsRef.push(liftData);
 
     liftName.value = liftWeight.value = liftReps.value = liftSets.value = '';
   });
 });
 
-// Upload PR and refresh display
+// Upload new lift
 uploadPrBtn.addEventListener('click', () => {
   const movementRaw = prName.value.trim();
-  if (!movementRaw || !prWeight.value || !prReps.value) return alert('Fill all PR fields!');
+  const weight = Number(prWeight.value);
+  const reps = Number(prReps.value);
 
-  const prData = {
+  if (!movementRaw || !weight || !reps) return alert('Fill all fields!');
+
+  const liftEntry = {
     movement: movementRaw,
-    weight: Number(prWeight.value),
-    reps: Number(prReps.value),
-    timestamp: Date.now()
+    weight,
+    reps,
+    sets: 1, // default for PR entry
+    timestamp: Date.now(),
+    user: username
   };
 
-  db.ref(`users/${userId}/pr`).set({
-  user: username,
-  ...prData
-  });
+  // Push new lift to lifts log
+  db.ref(`users/${userId}/lifts`).push(liftEntry)
+    .then(() => {
+      console.log('Lift uploaded');
+      prName.value = prWeight.value = prReps.value = '';
+      // No need to call loadRecentPRs manually if using real-time listener
+    })
+    .catch(err => console.error('Lift upload failed', err));
+});
 
-  prName.value = prWeight.value = prReps.value = '';
-  loadRecentPRs();
+
+// ---------------- Chat ----------------
+function loadChatMessages() {
+  chatBox.innerHTML = '';
+  db.ref('messages').on('value', snapshot => {
+    chatBox.innerHTML = '';
+    snapshot.forEach(msgSnap => {
+      const msg = msgSnap.val();
+      const div = document.createElement('div');
+      div.textContent = `${msg.user}: ${msg.text}`;
+      chatBox.appendChild(div);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+}
+
+sendMsgBtn.addEventListener('click', () => {
+  const text = chatMessage.value.trim();
+  if (!text) return;
+  db.ref('messages').push({
+    user: username,
+    text,
+    timestamp: Date.now()
+  });
+  chatMessage.value = '';
+});
+
+function openUserPage(safeId, displayName) {
+  console.log('Opening user page for:', safeId, displayName);
+  console.log('DOM elements:', userPage, topMovementsList, allLiftsList);
+  // Hide other pages
+  gymPage.style.display = 'none';
+  landingPage.style.display = 'none';
+  chatPage.style.display = 'none';
+  userPage.style.display = 'block';
+
+  userNameHeader.textContent = displayName;
+
+  // Clear previous data
+  topMovementsList.innerHTML = '';
+  allLiftsList.innerHTML = '';
+
+  const liftsRef = db.ref(`users/${safeId}/lifts`);
+
+  liftsRef.once('value').then(snapshot => {
+    const lifts = [];
+
+    snapshot.forEach(child => {
+      lifts.push(child.val());
+    });
+
+    if (lifts.length === 0) return;
+
+    // --- Top 5 most popular movements by occurrence
+    const movementMap = {};
+
+    lifts.forEach(lift => {
+      const norm = normalizeMovement(lift.movement);
+      if (!movementMap[norm]) movementMap[norm] = [];
+      movementMap[norm].push(lift);
+    });
+
+    // Sort movements by number of times logged
+    const sortedMovements = Object.entries(movementMap)
+    
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 5); // top 5
+
+    sortedMovements.forEach(([_, liftArray]) => {
+      // Find the max weight lifted for this movement
+      const best = liftArray.reduce((max, curr) => curr.weight > max.weight ? curr : max, liftArray[0]);
+      const li = document.createElement('li');
+      li.textContent = `${best.movement}: ${best.weight} kg x ${best.reps} reps`;
+      topMovementsList.appendChild(li);
+    });
+
+    // --- Full lift log in reverse chronological order
+    lifts.sort((a, b) => b.timestamp - a.timestamp);
+
+    lifts.forEach(lift => {
+      const li = document.createElement('li');
+      li.textContent = `${lift.movement} — ${lift.weight} kg x ${lift.reps} reps`;
+      allLiftsList.appendChild(li);
+    });
+  });
+}
+
+userBackBtn.addEventListener('click', () => {
+  userPage.style.display = 'none';
+  gymPage.style.display = 'block';
 });

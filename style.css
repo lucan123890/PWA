@@ -57,3 +57,13 @@ input, button {
   width: 90%;
   text-align: left;
 }
+
+#top-movements-list, #all-lifts-list {
+  width: 90%;
+  margin: 5px auto 15px auto;
+  padding: 5px;
+  border: 1px solid #ccc;
+  list-style-type: none;
+  max-height: 200px;
+  overflow-y: scroll;
+}
