@@ -3,20 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BaDonker</title>
+  <title>PWA Chat</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <header>
-    <img src="icons/Logo.png" alt="App Logo" class="logo">
-  </header>
+  <!-- Username Page -->
+  <div id="username-page">
+    <h1>Enter your username</h1>
+    <input type="text" id="username-input" placeholder="Username">
+    <button id="join-btn">Join Chat</button>
+  </div>
 
-  <main>
-    <button onclick="startFocus()">Start Focus Session</button>
-    <button onclick="openJournal()">Open Journal</button>
-    <button onclick="viewStats()">View Stats</button>
-  </main>
+  <!-- Chat Page -->
+  <div id="chat-page" style="display:none;">
+    <h1>Main Group Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="message-input" placeholder="Type a message...">
+    <button id="send-btn">Send</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <script src="app.js"></script>
 </body>
