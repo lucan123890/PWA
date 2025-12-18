@@ -1,5 +1,5 @@
 {
-  "name": "PWA Chat",
+  "name": "Secure PWA Chat",
   "short_name": "Chat",
   "start_url": "./index.html",
   "display": "standalone",

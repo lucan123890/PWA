@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PWA Chat</title>
+  <title>Secure PWA Chat</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <!-- Username Page -->
-  <div id="username-page">
-    <h1>Enter your username</h1>
-    <input type="text" id="username-input" placeholder="Username">
-    <button id="join-btn">Join Chat</button>
+  <!-- Login Page -->
+  <div id="login-page">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <p id="login-error" style="color:red;"></p>
   </div>
 
   <!-- Chat Page -->
@@ -21,16 +23,14 @@
     <div id="messages"></div>
     <input type="text" id="message-input" placeholder="Type a message...">
     <button id="send-btn">Send</button>
+    <button id="logout-btn">Logout</button>
   </div>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <script src="app.js"></script>
 </body>
 </html>
-
-<link rel="stylesheet" href="style.css?v=2">
-<script src="app.js?v=2"></script>
-<img src="icons/logo.png?v=2" alt="Logo">

@@ -1,4 +1,4 @@
-// ----------- Firebase Setup -------------
+// -------- Firebase Setup -------------
 const firebaseConfig = {
   apiKey: "AIzaSyC-fWhhmVQ8ycZ7-JKe3JMkEaDpaHOohXY",
   authDomain: "pwa-site-6a264.firebaseapp.com",
@@ -10,30 +10,48 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
 
-// ----------- Elements -------------
-const usernamePage = document.getElementById('username-page');
+// -------- Elements -------------
+const loginPage = document.getElementById('login-page');
 const chatPage = document.getElementById('chat-page');
-const joinBtn = document.getElementById('join-btn');
-const usernameInput = document.getElementById('username-input');
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginError = document.getElementById('login-error');
 const messagesDiv = document.getElementById('messages');
 const messageInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
 
 let username = '';
 
-// ----------- Username Handling -------------
-joinBtn.addEventListener('click', () => {
-  const value = usernameInput.value.trim();
-  if (!value) return alert("Please enter a username!");
-  username = value;
-  usernamePage.style.display = 'none';
-  chatPage.style.display = 'block';
-  listenForMessages();
+// -------- Authentication -------------
+loginBtn.addEventListener('click', () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      username = userCredential.user.email;
+      loginPage.style.display = 'none';
+      chatPage.style.display = 'block';
+      listenForMessages();
+    })
+    .catch(error => {
+      loginError.textContent = 'Invalid Credentials';
+    });
 });
 
-// ----------- Sending Messages -------------
+logoutBtn.addEventListener('click', () => {
+  auth.signOut().then(() => {
+    chatPage.style.display = 'none';
+    loginPage.style.display = 'block';
+    messagesDiv.innerHTML = '';
+  });
+});
+
+// -------- Sending Messages -------------
 sendBtn.addEventListener('click', sendMessage);
 messageInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') sendMessage();
@@ -51,7 +69,7 @@ function sendMessage() {
   messageInput.value = '';
 }
 
-// ----------- Listening for Messages -------------
+// -------- Listening for Messages -------------
 function listenForMessages() {
   db.ref('messages').on('child_added', (snapshot) => {
     const msg = snapshot.val();
